@@ -1,4 +1,4 @@
-import { forkJoin, from, fromEvent, interval, Observable, of, timer } from "rxjs";
+import { combineLatest, forkJoin, from, fromEvent, interval, Observable, of, timer} from "rxjs";
 import { ajax } from "rxjs/ajax";
 
 // 9. Observable, Subscription, Observer - Key Elements
@@ -349,18 +349,83 @@ const warmUpObserver = {
 //   console.log('Unsubscribe');
 // }, 10000);
 
-// 42. forkJoin
-const url: string = 'https://randomuser.me/api';
-const ajaxName$ = ajax(url);
-const ajaxCity$ = ajax(url);
-const ajaxEmail$ = ajax(url);
-// ajaxName$.subscribe((data: any) => console.log(data.response?.results[0]?.name?.first));
-// ajaxCity$.subscribe((data: any) => console.log(data.response.results[0]?.location?.country));
-// ajaxEmail$.subscribe((data: any) => console.log(data.response.results[0]?.email));
 
-forkJoin([ajaxName$, ajaxCity$, ajaxEmail$]).subscribe(
-    ([ajaxName, ajaxCity, ajaxEmail]) => {
+// 42. forkJoin
+// const url: string = 'https://randomuser.me/api';
+// const ajaxName$ = ajax(url);
+// const ajaxCity$ = ajax(url);
+// const ajaxEmail$ = ajax(url);
+// // ajaxName$.subscribe((data: any) => console.log(data.response?.results[0]?.name?.first));
+// // ajaxCity$.subscribe((data: any) => console.log(data.response.results[0]?.location?.country));
+// // ajaxEmail$.subscribe((data: any) => console.log(data.response.results[0]?.email));
+//
+// forkJoin([ajaxName$, ajaxCity$, ajaxEmail$]).subscribe(
+//     ([ajaxName, ajaxCity, ajaxEmail]) => {
+//       // @ts-ignore
+//       console.log(`${ajaxName.response.results[0]?.name?.first} is from ${ajaxCity.response.results[0]?.location?.country} and this is the email contact ${ajaxEmail.response.results[0]?.email}`);
+//     }
+// );
+
+
+// 43. forkJoin - Error Scenario
+// const a$ = new Observable(subscriber => {
+//     setTimeout(() => {
+//         subscriber.next('a');
+//         subscriber.complete();
+//     },5000); // this will get cancelled as the b$ fails before
+//     return () => {
+//         console.log("Teardown A");
+//     }
+// });
+// const b$ = new Observable(subscriber => {
+//     setTimeout(() => {
+//         subscriber.error('Failure!');
+//     },3000);
+//     return () => {
+//         console.log("Teardown B");
+//     }
+// });
+//
+// forkJoin([a$,b$]).subscribe({
+//     next: value => console.log(value),
+//     error: err => console.log('Error:', err)
+// });
+
+
+// 45. combineLatest - Reacting to multiple input changes
+// A ->                     ----A------------B---------------------C-----|---->
+// B ->                     ----------1----------------2--------|------------->
+// combineLatest([A,B]) ->  ----------[A,1]--[B,1]-----[B,2]-------[C,2]-|---->
+
+// A ->                     ----A------------B-------------------------------->
+// B ->                     ----------1----------------2--------X------------->
+// combineLatest([A,B]) ->  ----------[A,1]--[B,1]-----[B,2]----X------------->
+
+const temperatureInput = document.getElementById("temperature-input");
+const conversionInput = document.getElementById("conversion-dropdown");
+const resultText = document.getElementById("result-text");
+
+const temperatureInputEvent$ = fromEvent(temperatureInput, 'input');
+const conversionInputEvent$ = fromEvent(conversionInput, 'input');
+
+combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
+    ([temperatureInputEvent, conversionInputEvent]) => {
       // @ts-ignore
-      console.log(`${ajaxName.response.results[0]?.name?.first} is from ${ajaxCity.response.results[0]?.location?.country} and this is the email contact ${ajaxEmail.response.results[0]?.email}`);
+      const temperature: number = Number(temperatureInputEvent.target['value']);
+      // @ts-ignore
+      const conversion: string = conversionInputEvent.target['value'];
+      resultText.innerHTML = convert(temperature, conversion);
     }
 );
+
+const fahrenheitToCelsius: Function = (f: number): number => (f - 32) * 5/9;
+const celsiusToFahrenheit: Function = (c: number): number => (c * 9/5) + 32;
+const convert: Function = (value: number, conversion: string): number => {
+  switch(conversion){
+    case 'f-to-c' :
+      return fahrenheitToCelsius(value);
+    case 'c-to-f' :
+      return celsiusToFahrenheit(value);
+  }
+  return value;
+}
