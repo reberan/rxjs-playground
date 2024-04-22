@@ -1,4 +1,17 @@
-import { combineLatest, filter, forkJoin, from, fromEvent, interval, map, Observable, of, tap, timer} from "rxjs";
+import {
+  combineLatest,
+  debounceTime,
+  filter,
+  forkJoin,
+  from,
+  fromEvent,
+  interval,
+  map,
+  Observable,
+  of,
+  tap,
+  timer
+} from "rxjs";
 import {ajax, AjaxResponse} from "rxjs/ajax";
 
 
@@ -531,6 +544,16 @@ const warmUpObserver = {
 
 
 // 54. debounceTime
+// values  ------A--------------------B------C------------------>
+// debounceTime(2000)
+// time    ------1------2------3------4------5------6------7----> (s)
+// result  --------------------A---------------------------C---->
+const sliderInput = document.querySelector("input#slider");
+fromEvent(sliderInput, 'input').pipe(
+    debounceTime(2000),
+    // @ts-ignore
+    map(event => event.target['value']),
+).subscribe({ next: (value) => console.log(value) });
 
 
 // 55. catchError
