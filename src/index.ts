@@ -1,5 +1,6 @@
-import { combineLatest, forkJoin, from, fromEvent, interval, Observable, of, timer} from "rxjs";
-import { ajax } from "rxjs/ajax";
+import { combineLatest, filter, forkJoin, from, fromEvent, interval, map, Observable, of, tap, timer} from "rxjs";
+import {ajax, AjaxResponse} from "rxjs/ajax";
+
 
 // 9. Observable, Subscription, Observer - Key Elements
 // const someObservable$ = new Observable<string>((subscriber) => {
@@ -209,6 +210,7 @@ const warmUpObserver = {
 //   ajax$.subscribe((data: any) => console.log(`Subscription ${index}`, data.response?.results[0]?.email));
 // });
 
+
 // 33. Hot Observables
 // const helloButton = document.querySelector('button#hello');
 // const helloClick$ = new Observable<MouseEvent>(subscriber => {
@@ -231,6 +233,7 @@ const warmUpObserver = {
 //   );
 // },5000);
 
+
 // 37. of - How Creation Functions work
 // of('Alice', 'Ben', 'Charlie').subscribe(warmUpObserver);
 //
@@ -252,8 +255,9 @@ const warmUpObserver = {
 // };
 // ourOwnOf('Alice','Ben', 'Charlie').subscribe(warmUpObserver);
 
+
 // 38. from
-// from(['Alice', 'Ben', 'Charlie']).subscribe(warmUpObserver);
+// const fromSubscription = from(['Alice', 'Ben', 'Charlie']).subscribe(warmUpObserver);
 //
 // const somePromise = new Promise((resolve, reject) =>{
 //   resolve('Resolved');
@@ -266,6 +270,7 @@ const warmUpObserver = {
 // });
 // const observableFromPromiseRejected$ = from(somePromiseRejected);
 // observableFromPromiseRejected$.subscribe(warmUpObserver);
+
 
 // 39. fromEvent
 // const triggerButton = document.querySelector('button#trigger');
@@ -298,6 +303,7 @@ const warmUpObserver = {
 //   triggerClickSubscription.unsubscribe();
 // },5000);
 
+
 // 40. timer
 // console.log('App started');
 // const timerObservable$ = new Observable<number>(subscriber => {
@@ -323,6 +329,7 @@ const warmUpObserver = {
 //   timerObservableSubscription.unsubscribe();
 //   console.log('Unsubscribe');
 // }, 1000);
+
 
 // 41. interval
 // console.log('App started');
@@ -352,16 +359,15 @@ const warmUpObserver = {
 
 // 42. forkJoin
 // const url: string = 'https://randomuser.me/api';
-// const ajaxName$ = ajax(url);
-// const ajaxCity$ = ajax(url);
-// const ajaxEmail$ = ajax(url);
+// const ajaxName$: Observable<AjaxResponse<any>> = ajax(url);
+// const ajaxCity$: Observable<AjaxResponse<any>> = ajax(url);
+// const ajaxEmail$: Observable<AjaxResponse<any>> = ajax(url);
 // // ajaxName$.subscribe((data: any) => console.log(data.response?.results[0]?.name?.first));
 // // ajaxCity$.subscribe((data: any) => console.log(data.response.results[0]?.location?.country));
 // // ajaxEmail$.subscribe((data: any) => console.log(data.response.results[0]?.email));
 //
 // forkJoin([ajaxName$, ajaxCity$, ajaxEmail$]).subscribe(
 //     ([ajaxName, ajaxCity, ajaxEmail]) => {
-//       // @ts-ignore
 //       console.log(`${ajaxName.response.results[0]?.name?.first} is from ${ajaxCity.response.results[0]?.location?.country} and this is the email contact ${ajaxEmail.response.results[0]?.email}`);
 //     }
 // );
@@ -401,31 +407,130 @@ const warmUpObserver = {
 // B ->                     ----------1----------------2--------X------------->
 // combineLatest([A,B]) ->  ----------[A,1]--[B,1]-----[B,2]----X------------->
 
-const temperatureInput = document.getElementById("temperature-input");
-const conversionInput = document.getElementById("conversion-dropdown");
-const resultText = document.getElementById("result-text");
+// const temperatureInput = document.getElementById("temperature-input");
+// const conversionInput = document.getElementById("conversion-dropdown");
+// const resultText = document.getElementById("result-text");
+//
+// const temperatureInputEvent$ = fromEvent(temperatureInput, 'input');
+// const conversionInputEvent$ = fromEvent(conversionInput, 'input');
+//
+// combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
+//     ([temperatureInputEvent, conversionInputEvent]) => {
+//       // @ts-ignore
+//       const temperature: number = Number(temperatureInputEvent.target['value']);
+//       // @ts-ignore
+//       const conversion: string = conversionInputEvent.target['value'];
+//       resultText.innerHTML = convert(temperature, conversion);
+//     }
+// );
+//
+// const fahrenheitToCelsius: Function = (f: number): number => (f - 32) * 5/9;
+// const celsiusToFahrenheit: Function = (c: number): number => (c * 9/5) + 32;
+// const convert: Function = (value: number, conversion: string): number => {
+//   switch(conversion){
+//     case 'f-to-c' :
+//       return fahrenheitToCelsius(value);
+//     case 'c-to-f' :
+//       return celsiusToFahrenheit(value);
+//   }
+//   return value;
+// }
 
-const temperatureInputEvent$ = fromEvent(temperatureInput, 'input');
-const conversionInputEvent$ = fromEvent(conversionInput, 'input');
 
-combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
-    ([temperatureInputEvent, conversionInputEvent]) => {
-      // @ts-ignore
-      const temperature: number = Number(temperatureInputEvent.target['value']);
-      // @ts-ignore
-      const conversion: string = conversionInputEvent.target['value'];
-      resultText.innerHTML = convert(temperature, conversion);
-    }
-);
+// 50. filter operator
+// news    -----A------1------B------2--------C------3---------D-------4------>
+// where letters are a type of news (i.e., sport news) and numbers another (i.e., business news).
+// and we want only to get sport news filtering only what we want to receive....
+// filter( item => item.category === 'sport')
+// result  -----A-------------B---------------C----------------D-------------->
+// enum NewsType {
+//     BUSINESS,
+//     SPORT
+// }
+// interface NewsItem {
+//     category: NewsType.SPORT | NewsType.BUSINESS
+//     content: string;
+// }
+// const news: Array<NewsItem> = [
+//     { category: NewsType.SPORT, content: 'A' },
+//     { category: NewsType.SPORT, content: 'B' },
+//     { category: NewsType.BUSINESS, content: '1' },
+//     { category: NewsType.BUSINESS, content: '2' },
+//     { category: NewsType.SPORT, content: 'C' },
+//     { category: NewsType.SPORT, content: 'D' },
+//     { category: NewsType.BUSINESS, content: '3' },
+//     { category: NewsType.BUSINESS, content: '4' },
+// ];
+// const newsObservables$ = new Observable<NewsItem>(subscriber => {
+//     news.forEach(newItem => setTimeout(() => subscriber.next(newItem), 1000));
+// });
+//
+// const newsSubscription = newsObservables$.subscribe({ next: ({ content}) => console.log(content)});
+//
+// const sportSubscription = newsObservables$.pipe(
+//     filter(newItem => newItem.category === NewsType.SPORT)
+// ).subscribe({ next: (newItem) => console.log("This is a sport news -> ", newItem.content) });
+//
+// const businessSubscription = newsObservables$.pipe(
+//     filter(newItem => newItem.category === NewsType.BUSINESS)
+// ).subscribe({ next: (newItem) => console.log("This is a business news -> ", newItem.content) });
 
-const fahrenheitToCelsius: Function = (f: number): number => (f - 32) * 5/9;
-const celsiusToFahrenheit: Function = (c: number): number => (c * 9/5) + 32;
-const convert: Function = (value: number, conversion: string): number => {
-  switch(conversion){
-    case 'f-to-c' :
-      return fahrenheitToCelsius(value);
-    case 'c-to-f' :
-      return celsiusToFahrenheit(value);
-  }
-  return value;
-}
+
+// 51. map operator
+// numbers -----1------2-------3------4------5-------6-------7------>
+// map( x => x * x)
+// result  -----1------4-------9------16-----25------36------49----->
+//
+// const numbersObservable$ = new Observable<number>(subscriber => {
+//     setTimeout(() => { subscriber.next(1) }, 1000);
+//     setTimeout(() => { subscriber.next(2) }, 2000);
+//     setTimeout(() => { subscriber.next(3) }, 3000);
+//     setTimeout(() => { subscriber.next(4) }, 1000);
+//     setTimeout(() => { subscriber.next(5) }, 4000);
+//     setTimeout(() => { subscriber.next(6) }, 6000);
+//     setTimeout(() => { subscriber.next(7) }, 7000);
+// });
+//
+// const powerSubscription = numbersObservable$.pipe(
+//   map((x: number) => x * x)
+// ).subscribe( { next: (x: number) => console.log(x) });
+//
+// // with forkJoin ....
+// const url: string = 'https://randomuser.me/api';
+// let ajaxName$ = ajax(url);
+// let ajaxCountry$ = ajax(url);
+// let ajaxEmail$ = ajax(url);
+//
+// ajaxName$ = ajaxName$.pipe(
+//     map((data: AjaxResponse<any>) => data.response?.results[0]?.name?.first)
+// );
+// ajaxCountry$ = ajaxCountry$.pipe(
+//     map((data: AjaxResponse<any>) => data.response.results[0]?.location?.country)
+// );
+// ajaxEmail$ = ajaxEmail$.pipe(
+//     map((data: AjaxResponse<any>) => data.response.results[0]?.email)
+// );
+//
+// forkJoin([ajaxName$, ajaxCountry$, ajaxEmail$]).subscribe(
+//     ([name, country, email]) => {
+//       console.log(`${name} is from ${country} and this is the email contact ${email}`);
+//     }
+// );
+
+
+// 52. tap operator (https://jaywoz.medium.com/information-is-king-tap-how-to-console-log-in-rxjs-7fc09db0ad5a)
+// of(13, 3, 9, 7, 1).pipe(
+//     // tap(value => { console.log("Spy on the value -> ", value) }),
+//     filter(value => value > 5),
+//     // tap(value => { console.log("Spy on the value -> ", value) }),
+//     map(value => value * 2),
+//     tap(value => { console.log("Spy on the value -> ", value) })
+// ).subscribe({
+//     next: (value)=> console.log("Output value -> ", value)
+// });
+
+
+// 54. debounceTime
+
+
+// 55. catchError
