@@ -581,7 +581,7 @@ const warmUpObserver = {
 // 57. concatMap: static example
 // ------------------A---------------B-------------->
 // concatMap(() => newStream$)
-// -------------------1-2-|->        -1-2-|->
+// -------------------1-2|->         -1-2|->
 // -------------------1-2-------------1-2------------->
 // const source$ = new Observable(subscriber => {
 //   setTimeout(()=> subscriber.next('A'),2000);
@@ -598,7 +598,7 @@ const warmUpObserver = {
 // 58. concatMap: dynamic example
 // ------------------A---------------B-------------->
 // concatMap(() => requestData(value))
-// -------------------1|->          -----5-|->
+// -------------------1|->          -----5|->
 // -------------------1------------------5---------->
 // const endpointInput: HTMLInputElement = document.querySelector("input#endpoint");
 // const fetchButton = document.querySelector("button#fetch");
@@ -622,3 +622,25 @@ const warmUpObserver = {
 //   },
 //   complete: () => console.log("Completed")
 // })
+
+
+// 62. switchMap
+// ------------------A---------------B----------------->
+// switchMap(() => requestData(value))
+//                   ---------------->------6|->
+// -----------------------------------------6---------->
+
+
+// 63. mergeMap
+// ------------------A-------B-----------C------------->
+// mergeMap(() => requestData(value))
+//                   -------------1|->   ---6|->
+//                           ----------------------3|->
+//
+// -------------------------------1---------6------3--->
+
+
+// 64. concat vs switch vs merge
+// concat: queues/buffers, memory leaks easy to notice, values handled one by one, possible delayed reactions
+// switch: cancels/unsubscribes, memory leaks not dangerous, quick reactions to new source values, order mostly safe
+// merge: concurrent, memory leaks hard to notice, no definite order
