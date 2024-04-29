@@ -26,10 +26,22 @@
         <p class="card-text mt-4" id="result-text">Please fill the above form</p>
       </div>
     </div>
-  <div class="container">
-    <div class="card my-4 p-4">
-      <label for="slider">debounceTime</label><input type="range" id="slider" class="form-control"/>
+    <div class="container">
+      <div class="card my-4 p-4">
+        <label for="slider">debounceTime</label>
+        <input type="range" id="slider" class="form-control"/>
+      </div>
     </div>
-  </div>
+    <div class="container">
+      <div class="card my-4 p-4">
+        <label for="endpoint">concatMap</label>
+        <div class="d-flex">
+          <input type="text" id="endpoint" class="form-control mr-1"
+                 placeholder="posts, users, albums, todos, photos or comments"/>
+          <button id="fetch" class="btn btn-primary">Fetch</button>
+        </div>
+      </div>
+      <div id="jsonPlaceholderResponse" class="mt-2"></div>
+    </div>
   </body>
 </html>

@@ -1,7 +1,6 @@
 import {
-  combineLatest,
-  debounceTime,
-  filter,
+  catchError, concatMap,
+  debounceTime, EMPTY,
   forkJoin,
   from,
   fromEvent,
@@ -13,6 +12,7 @@ import {
   timer
 } from "rxjs";
 import {ajax, AjaxResponse} from "rxjs/ajax";
+
 
 
 // 9. Observable, Subscription, Observer - Key Elements
@@ -44,7 +44,7 @@ import {ajax, AjaxResponse} from "rxjs/ajax";
 // });
 //
 const warmUpObserver = {
-  next: (value: string | Number) =>
+  next: (value: string | number) =>
     console.log("warmUpObserver.next value -> ", value),
   complete: () =>
     console.log("warmUpObserver.completed"),
@@ -548,12 +548,77 @@ const warmUpObserver = {
 // debounceTime(2000)
 // time    ------1------2------3------4------5------6------7----> (s)
 // result  --------------------A---------------------------C---->
-const sliderInput = document.querySelector("input#slider");
-fromEvent(sliderInput, 'input').pipe(
-    debounceTime(2000),
-    // @ts-ignore
-    map(event => event.target['value']),
-).subscribe({ next: (value) => console.log(value) });
+// const sliderInput = document.querySelector("input#slider");
+// fromEvent(sliderInput, 'input').pipe(
+//     debounceTime(2000),
+//     // @ts-ignore
+//     map(event => event.target['value']),
+// ).subscribe({ next: (value) => console.log(value) });
 
 
-// 55. catchError
+// 55. catchError & EMPTY
+// const failingHttpRequest$ = new Observable(subscriber => {
+//   setTimeout(()=>{
+//     subscriber.error(new Error('Timeout'));
+//   }, 3000)
+// });
+// console.log('App Started');
+// failingHttpRequest$.pipe(
+//     catchError(_ => of('Fallback error'))
+// ).subscribe(
+//     { next: value => console.log(value) }
+// );
+//
+// failingHttpRequest$.pipe(
+//     catchError(_ => EMPTY)
+// ).subscribe({
+//       next: value => console.log(value),
+//       complete: () => console.log("Completed")
+//     }
+// );
+
+
+// 57. concatMap: static example
+// ------------------A---------------B-------------->
+// concatMap(() => newStream$)
+// -------------------1-2-|->        -1-2-|->
+// -------------------1-2-------------1-2------------->
+// const source$ = new Observable(subscriber => {
+//   setTimeout(()=> subscriber.next('A'),2000);
+//   setTimeout(()=> subscriber.next('B'),5000);
+// });
+// console.log('App Started');
+// source$.pipe(
+//     concatMap(value => of(1,2))
+// ).subscribe({
+//   next: (value) => console.log(value)
+// });
+
+
+// 58. concatMap: dynamic example
+// ------------------A---------------B-------------->
+// concatMap(() => requestData(value))
+// -------------------1|->          -----5-|->
+// -------------------1------------------5---------->
+// const endpointInput: HTMLInputElement = document.querySelector("input#endpoint");
+// const fetchButton = document.querySelector("button#fetch");
+//
+// fromEvent(fetchButton, "click").pipe(
+//     map(()=> endpointInput.value),
+//     concatMap(value =>
+//         ajax(`https://jsonplaceholder.typicode.com/${value}`).pipe(
+//             catchError(error => of(`Could not fetch data: ${error}`))
+//         )
+//     )
+// ).subscribe({
+//   next: value => {
+//     console.log(value)
+//     document.querySelector("div#jsonPlaceholderResponse").innerHTML =
+//         `${JSON.stringify(value)}`;
+//   },
+//   error: error => {
+//     console.log(error);
+//     document.querySelector("div#jsonPlaceholderResponse").innerHTML = `Error ${error}`;
+//   },
+//   complete: () => console.log("Completed")
+// })
