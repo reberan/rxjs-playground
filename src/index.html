@@ -43,5 +43,26 @@
       </div>
       <div id="jsonPlaceholderResponse" class="mt-2"></div>
     </div>
+    <div class="container">
+      <div class="card my-4 p-4">
+        <label for="value-input">Subject</label>
+        <div class="d-flex">
+          <input type="text" id="value-input" class="form-control mr-1"/>
+          <button id="emit" class="btn btn-warning">Emit</button>
+        </div>
+        <button id="subscribe" class="btn btn-primary mt-2 w-25">Subscribe</button>
+      </div>
+    </div>
+    <div class="container">
+      <div class="card my-4 p-4">
+        <label>BehaviorSubject</label>
+        <div class="d-flex">
+          <button id="login" class="btn btn-info mr-2">Login</button>
+          <button id="logout" class="btn btn-primary mr-2">Logout</button>
+          <button id="print-state" class="btn btn-secondary">Print State</button>
+        </div>
+        <span id="logged-in" class="bg-dark text-white mt-2 card py-2 px-1">Logged in:</span>
+      </div>
+    </div>
   </body>
 </html>

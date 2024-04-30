@@ -1,4 +1,5 @@
 import {
+  BehaviorSubject,
   catchError, concatMap,
   debounceTime, EMPTY,
   forkJoin,
@@ -7,11 +8,11 @@ import {
   interval,
   map,
   Observable,
-  of,
+  of, Subject,
   tap,
-  timer
+  timer, withLatestFrom
 } from "rxjs";
-import {ajax, AjaxResponse} from "rxjs/ajax";
+import { ajax, AjaxResponse } from "rxjs/ajax";
 
 
 
@@ -199,6 +200,7 @@ const warmUpObserver = {
 
 
 // 29. Cancellation - Unsubscribe
+// see https://jaywoz.medium.com/rxjs-when-to-unsubscribe-c6f39b8b95b7
 // const interval$ = new Observable<number>(subscriber => {
 //   let counter = 1;
 //   const intervalId = setInterval(()=> {
@@ -644,3 +646,57 @@ const warmUpObserver = {
 // concat: queues/buffers, memory leaks easy to notice, values handled one by one, possible delayed reactions
 // switch: cancels/unsubscribes, memory leaks not dangerous, quick reactions to new source values, order mostly safe
 // merge: concurrent, memory leaks hard to notice, no definite order
+
+
+// 69. Subject in Action
+// const emitButton = document.querySelector('button#emit');
+// const valueInputElement: HTMLInputElement = document.querySelector('#value-input');
+// const subscribeButton = document.querySelector('button#subscribe');
+//
+// const value$ = new Subject<string>();
+//
+// fromEvent(emitButton, 'click').pipe(
+//     map(() => valueInputElement.value)
+// ).subscribe(value$);
+//
+// fromEvent(subscribeButton, 'click').subscribe(
+//     () => {
+//       console.log('New Subscription');
+//       value$.subscribe(value => console.log(value))
+//     }
+// );
+
+
+// 70. BehaviorSubject in Action
+const loggedInSpan: HTMLSpanElement = document.querySelector('span#logged-in');
+const loginButton: HTMLButtonElement = document.querySelector('button#login');
+const logoutButton: HTMLButtonElement = document.querySelector('button#logout');
+const printStateButton: HTMLButtonElement = document.querySelector('span#logged-in');
+
+const isLoggedIn$ = new BehaviorSubject<boolean>(false);
+
+fromEvent(loginButton, 'click').subscribe(() => isLoggedIn$.next(true));
+fromEvent(logoutButton, 'click').subscribe(() => isLoggedIn$.next(false));
+
+// Navigation bar
+isLoggedIn$.subscribe(
+    isLoggedIn => loggedInSpan.innerHTML = 'Logged in: ' + isLoggedIn.toString().toUpperCase()
+);
+
+// Buttons
+isLoggedIn$.subscribe(isLoggedIn => {
+  loginButton.style.display = isLoggedIn ? 'none' : 'block';
+  logoutButton.style.display = isLoggedIn ? 'block' : 'none';
+});
+
+// Print State
+fromEvent(printStateButton, 'click').subscribe(
+    () => console.log('User is logged in: ', isLoggedIn$.value)
+);
+// or
+// fromEvent(printStateButton, 'click').pipe(
+//     withLatestFrom(isLoggedIn$)
+// ).subscribe(
+//     ([event, isLoggedIn]) => console.log('User is logged in: ', isLoggedIn)
+// );
+//
